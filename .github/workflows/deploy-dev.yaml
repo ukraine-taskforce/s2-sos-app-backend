@@ -10,6 +10,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: dev
+    steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
@@ -21,9 +22,9 @@ jobs:
           yarn
       - name: Update Lambda
         uses: ukraine-taskforce/update-lambda-action@v0.0.1
-          with:
-            lambda-dir: lambda/send-sms
-            lambda-name: SendSms
-            s3-bucket: ${{ secrets.S3_BUCKET }}
-            s3-key: send-sms.zip
-            role-arn: ${{ secrets.AWS_ROLE_ARN }}
+        with:
+          lambda-dir: lambda/send-sms
+          lambda-name: SendSms
+          s3-bucket: ${{ secrets.S3_BUCKET }}
+          s3-key: send-sms.zip
+          role-arn: ${{ secrets.AWS_ROLE_ARN }}
