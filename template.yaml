@@ -1,0 +1,45 @@
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  SendSmsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/send-sms.handler
+      Runtime: nodejs14.x
+      Tracing: Active
+      MemorySize: 1024
+      Timeout: 10
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /sendSms
+            Method: post
+            RestApiId: !Ref Api
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - Statement:
+            - Effect: Allow
+              Action: sns:Publish
+              Resource: '*'
+
+  SendSmsLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${SendSmsLambda}
+      RetentionInDays: 180
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: api
+      TracingEnabled: true
+      OpenApiVersion: 3.0.2
+
+Outputs:
+  APIEndpoint:
+    Description: "API Gateway endpoint URL for api stage"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/api/"
