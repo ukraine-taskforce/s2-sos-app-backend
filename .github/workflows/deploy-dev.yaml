@@ -15,13 +15,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
-      - run: yarn
-      - name: Set AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: eu-central-1
-      - name: deploy
+      - name: Install dependencies
         run: |
-          zip -j send-sms.zip ./lambda/send-sms/*
-          aws lambda update-function-code --function-name=SendSms --zip-file=fileb://send-sms.zip
+          cd lambda/send-sms
+          yarn
+      - name: Update Lambda
+        uses: ukraine-taskforce/update-lambda-action@v0.0.1
+          with:
+            lambda-dir: lambda/send-sms
+            lambda-name: SendSms
+            s3-bucket: ${{ secrets.S3_BUCKET }}
+            s3-key: send-sms.zip
+            role-arn: ${{ secrets.AWS_ROLE_ARN }}
